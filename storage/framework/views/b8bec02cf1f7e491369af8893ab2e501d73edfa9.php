@@ -1,0 +1,206 @@
+<?php $__env->startSection('title', trans('Gift Card Payment')); ?>
+<?php $__env->startSection('content'); ?>
+
+    <div class="page-header card card-primary m-0 m-md-4 my-4 m-md-0 p-5 shadow">
+        <div class="row justify-content-between">
+            <div class="col-md-12">
+                <form action="<?php echo e(route('admin.giftCardSell.search')); ?>" method="get">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <input type="text" name="transaction_id" value="<?php echo e(@request()->transaction_id); ?>" class="form-control get-trx-id"
+                                       placeholder="<?php echo app('translator')->get('Search for Transaction ID'); ?>">
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <input type="text" name="user_name" value="<?php echo e(@request()->user_name); ?>" class="form-control get-username"
+                                       placeholder="<?php echo app('translator')->get('Username'); ?>">
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <select class="form-control mb-3" name="giftCard_status"
+                                    aria-label=".form-select-lg example">
+                                <option value="0" <?php if(@request()->giftCard_status==0): ?> selected <?php endif; ?>><?php echo app('translator')->get('All Gift Card'); ?>
+                                </option>
+                                <option value="1" <?php if(@request()->giftCard_status==1): ?> selected <?php endif; ?>><?php echo app('translator')->get('Complete Gift Card'); ?>
+                                </option>
+                                <option value="2" <?php if(@request()->giftCard_status==2): ?> selected <?php endif; ?>>
+                                    <?php echo app('translator')->get('Pending Gift Card'); ?></option>
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <input type="date" class="form-control" name="datetrx" id="datepicker"/>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <button type="submit" class="btn waves-effect waves-light btn-primary"><i class="fas fa-search"></i> <?php echo app('translator')->get('Search'); ?></button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="card card-primary m-0 m-md-4 my-4 m-md-0 shadow">
+        <div class="card-body">
+            <table class="categories-show-table table table-hover table-striped table-bordered">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col"><?php echo app('translator')->get('No.'); ?></th>
+                    <th scope="col"><?php echo app('translator')->get('TRX'); ?></th>
+                    <th scope="col"><?php echo app('translator')->get('User Name'); ?></th>
+                    <th scope="col"><?php echo app('translator')->get('Gift Card'); ?></th>
+                    <th scope="col"><?php echo app('translator')->get('Service'); ?></th>
+                    <th scope="col"><?php echo app('translator')->get('Price'); ?></th>
+                    <th scope="col"><?php echo app('translator')->get('Qty'); ?></th>
+                    <th scope="col"><?php echo app('translator')->get('Date - Time'); ?></th>
+                    <th scope="col"><?php echo app('translator')->get('Status'); ?></th>
+                    <th scope="col"><?php echo app('translator')->get('More'); ?></th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <?php $__empty_1 = true; $__currentLoopData = $giftCardSell; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $k => $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <tr>
+                        <td data-label="<?php echo app('translator')->get('No.'); ?>"><?php echo e(++$k); ?></td>
+                        <td data-label="<?php echo app('translator')->get('TRX'); ?>"><?php echo app('translator')->get($row->transaction); ?></td>
+                        <td data-label="<?php echo app('translator')->get('User Name'); ?>">
+                            <a href="<?php echo e(route('admin.user-edit',$row->user_id)); ?>">
+                                <div class="d-flex no-block align-items-center">
+                                    <div class="mr-3"><img src="<?php echo e(getFile(config('location.user.path').optional($row->user)->image)); ?>" alt="user" class="rounded-circle" width="45" height="45"></div>
+                                    <div class="">
+                                        <h5 class="text-dark mb-0 font-16 font-weight-medium"><?php echo app('translator')->get(optional($row->user)->username); ?></h5>
+                                        <span class="text-muted font-14"><?php echo e(optional($row->user)->email); ?></span>
+                                    </div>
+                                </div>
+                            </a>
+                        </td>
+                        <td data-label="<?php echo app('translator')->get('Gift Card'); ?>"><?php echo app('translator')->get(@optional($row->giftCard)->details->name); ?></td>
+                        <td data-label="<?php echo app('translator')->get('Service'); ?>"><?php echo app('translator')->get(@optional($row->service)->name); ?></td>
+                        <td data-label="<?php echo app('translator')->get('Price'); ?>" ><span class="font-weight-bold"><?php echo e(config('basic.currency_symbol')); ?></span><?php echo e(getAmount($row->price)); ?>
+
+                            <?php if(0 <$row->discount): ?>
+                                <sup class="badge badge-light badge-pill ">  <?php echo e(config('basic.currency_symbol')); ?><?php echo e(getAmount($row->discount)); ?> <?php echo app('translator')->get('Off'); ?></sup>
+                            <?php endif; ?>
+                        </td>
+                        <td data-label="<?php echo app('translator')->get('Qty'); ?>"><?php echo app('translator')->get($row->qty); ?></td>
+
+                        <td data-label="<?php echo app('translator')->get('Date - Time'); ?>"><?php echo e(dateTime($row->created_at, 'd M, Y H:i')); ?></td>
+                        <td data-label="<?php echo app('translator')->get('Status'); ?>">
+                            <?php if($row->status == 1): ?>
+                                <span class="badge badge-light"><i class="fa fa-circle text-success   font-12" ></i> <?php echo app('translator')->get('Complete'); ?></span>
+                            <?php elseif($row->status == 0): ?>
+                                <span class="badge badge-light"><i class="fa fa-circle text-warning pending font-12" ></i> <?php echo app('translator')->get('Pending'); ?></span>
+                            <?php endif; ?>
+                        </td>
+                        <td data-label="<?php echo app('translator')->get('More'); ?>">
+                            <?php
+                                $details = ($row->code != null) ? json_encode($row->code) : null;
+                            ?>
+                            <button type="button" class="btn btn-sm btn-outline-primary btn-icon edit_button"
+                                    data-toggle="modal" data-target="#myModal"
+                                    data-route="<?php echo e(route('admin.giftCardSell.action',$row->id)); ?>"
+                                    data-info="<?php echo e($details); ?>"
+                                    data-id="<?php echo e($row->id); ?>"
+                                    data-status="<?php echo e($row->status); ?>">
+                                <?php if($row->status == 0): ?>
+                                    <i class="fa fa-pencil-alt"></i>
+                                <?php else: ?>
+                                    <i class="fa fa-eye"></i>
+                                <?php endif; ?>
+                            </button>
+                        </td>
+                    </tr>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                    <tr>
+                        <td class="text-center" colspan="9"><?php echo app('translator')->get('No Data Found'); ?></td>
+                    </tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
+            <?php echo e($giftCardSell->links('partials.pagination')); ?>
+
+        </div>
+    </div>
+    <!-- Modal for Edit button -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content ">
+                <div class="modal-header modal-colored-header bg-primary">
+                    <h4 class="modal-title" id="myModalLabel"><?php echo app('translator')->get('Gift Card Code'); ?></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+
+                <form role="form" method="POST" class="actionRoute" action="" enctype="multipart/form-data">
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('put'); ?>
+                    <div class="modal-body">
+                        <ul class="list-group withdraw-detail">
+                        </ul>
+
+
+                        <div class="form-group addForm">
+
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo app('translator')->get('Close'); ?>
+                        </button>
+                        <input type="hidden" class="action_id" name="id">
+                        <button type="submit" class="btn btn-primary action-btn" name="status"
+                                value="1"><?php echo app('translator')->get('Complete'); ?></button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('js'); ?>
+    <script>
+        "use strict";
+        $(document).ready(function () {
+            $(document).on("click", '.edit_button', function (e) {
+                var id = $(this).data('id');
+                var status = $(this).data('status');
+
+                if(status == 0){
+                    $('.action-btn').removeClass('d-none');
+                    $('.action-btn').addClass('d-block');
+                }else{
+                    $('.action-btn').removeClass('d-block');
+                    $('.action-btn').addClass('d-none');
+                }
+                $(".action_id").val(id);
+                $(".actionRoute").attr('action', $(this).data('route'));
+                var details = Object.entries($(this).data('info'));
+                var list = [];
+                details.map(function (item, i) {
+                    list[i] = ` <li class="list-group-item">${item[1]}</li>`
+                });
+
+                $('.withdraw-detail').html(list);
+            });
+        });
+    </script>
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('admin.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /home/gameemif/vouchersystem.gamebrio.store/resources/views/admin/sell_summary/giftCardSell.blade.php ENDPATH**/ ?>
